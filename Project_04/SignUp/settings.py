@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "user.apps.UserConfig",
     "crispy_forms",
+    "crispy_bootstrap4",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -118,7 +119,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -136,12 +136,9 @@ MEDIA_URL = '/media/'
 LOGIN_REDIRECT_URL = "index"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST = "smtp.protonmail.ch"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-EMAIL_HOST_USER = "reliable748@gmail.com"
-EMAIL_HOST_PASSWORD = "Reliable1496"
-
-# sign_up_project@proton.me
-# StrictlyConfidential
+EMAIL_HOST_USER = "sign_up_project@proton.me"
+EMAIL_HOST_PASSWORD = "StrictlyConfidential"

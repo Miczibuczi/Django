@@ -8,6 +8,7 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
+from SignUp import settings
 
 def index(request):
     return render(request, "user/index.html", {"title":"index"})
@@ -21,16 +22,16 @@ def register(request):
             email = form.cleaned_data.get("email")
             htmly = get_template("user/Email.html")
             d = {"username":username}
-            subject, from_email, to = "welcome", "sign_up_project@proton.me", email
+            subject, from_email, to = "welcome", settings.EMAIL_HOST_USER, email
             html_content = htmly.render(d)
             msg = EmailMultiAlternatives(subject, html_content, from_email, [to])
-            msg.attache_alternative(html_content, "text/html")
+            msg.attach_alternative(html_content, "text/html")
             msg.send()
-            messages.succes(request, f"Your account has been created! You are now able to log in")
+            messages.success(request, f"Your account has been created! You are now able to log in")
             return redirect('login')
-        else:
-            form = UserRegisterForm()
-            return render(request, "user/register.html", {"form":form, "title":"register here"})
+    else:
+        form = UserRegisterForm()
+    return render(request, "user/register.html", {"form":form, "title":"register here"})
     
 def Login(request):
     if request.method == "POST":
@@ -43,5 +44,5 @@ def Login(request):
             return redirect("index")
         else:
             messages.info(request, f"account does not exist, please sign in")
-        form = AuthenticationForm()
-        return render(request, "user/login.html", {"form":form, "title":"log in"})
+    form = AuthenticationForm()
+    return render(request, "user/login.html", {"form":form, "title":"log in"})
