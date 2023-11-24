@@ -43,6 +43,6 @@ def Login(request):
             messages.success(request, f"welcome {username} !!")
             return redirect("index")
         else:
-            messages.info(request, f"account does not exist, please sign in")
+            messages.info(request, f"account does not exist, please sign up")
     form = AuthenticationForm()
     return render(request, "user/login.html", {"form":form, "title":"log in"})
