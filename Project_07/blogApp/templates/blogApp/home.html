@@ -1,0 +1,93 @@
+{% extends "blogApp/base.html" %} {% block metatags %}
+<title>Home | GeeksForGeeks</title>
+<meta name="description" content="A destination for Learning" />
+<meta property="og:title" content="GeeksForGeeks" />
+<meta property="og:site_name" content="GeeksForGeeks" />
+<meta property="og:url" content="https://GeeksForGeeks.org" />
+<meta property="og:description" content="A destination for Learning" />
+<meta property="og:type" content="website" />
+{% endblock %} {% block content %}
+<style type="text/css">
+  body {
+    font-family: "Raleway", sans-serif;
+  }
+  .head_text {
+    color: white;
+  }
+  .h1,
+  h4 {
+    font-family: "Raleway", sans-serif;
+  }
+  #mainhome {
+    text-align: center;
+  }
+</style>
+<header class="jumbotron" style="background-color: #bdffd3; color: #00308f">
+  <div class="container">
+    <p class="h1">
+      Welcome to
+      <strong>GeeksForGeeks</strong>
+    </p>
+  </div>
+</header>
+<div class="container">
+  <div class="row">
+    <div class="col-md-8 mt-3 left">
+      {% for post in posts_list %}
+      <div class="shadow-none card mb-4" id="newsfeed">
+        <div class="card-body">
+          <h3 class="card-title">{{ post.title }}</h3>
+          <p class="card-text text-muted h6">
+            <span>
+              {{ post.author.first_name }} {{ post.author.last_name }}
+            </span>
+            | {{ post.created_on}}
+          </p>
+
+          <p class="card-text">{{post.metades }}</p>
+
+          <span>
+            <a
+              href="{% url 'post_detail' post.slug %}"
+              class="btn btn-outline-primary">
+              Read More →
+            </a>
+          </span>
+          <span>
+            <a
+              href="{% url 'post_detail_amp' post.slug %}"
+              class="btn btn-outline-success">
+              AMP page
+            </a>
+          </span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% if is_paginated %}
+<nav aria-label="Page navigation container"></nav>
+<ul class="pagination justify-content-center">
+  {% if page_obj.has_previous %}
+  <li>
+    <a
+      href="?page={{ page_obj.previous_page_number }}"
+      class="btn btn-outline-info"
+      style="font-family: sans-serif">
+      « PREV
+    </a>
+  </li>
+  {% endif %} {% if page_obj.has_next %}
+  <li>
+    <a
+      href="?page={{ page_obj.next_page_number }}"
+      class="btn btn-outline-info"
+      style="font-family: sans-serif">
+      NEXT »
+    </a>
+  </li>
+
+  {% endif %}
+</ul>
+{% endif %} {%endblock%}
