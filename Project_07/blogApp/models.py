@@ -20,6 +20,7 @@ class posts(models.Model):
 
     class Meta:
         ordering = ["-created_on"]
+        verbose_name_plural = "posts"
 
     def save(self, *args, **kwargs):
         if not self.slug:

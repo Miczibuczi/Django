@@ -38,9 +38,7 @@
         <div class="card-body">
           <h3 class="card-title">{{ post.title }}</h3>
           <p class="card-text text-muted h6">
-            <span>
-              {{ post.author.first_name }} {{ post.author.last_name }}
-            </span>
+            <span>{{ post.author.username }}</span>
             | {{ post.created_on}}
           </p>
 
@@ -51,13 +49,6 @@
               href="{% url 'post_detail' post.slug %}"
               class="btn btn-outline-primary">
               Read More →
-            </a>
-          </span>
-          <span>
-            <a
-              href="{% url 'post_detail_amp' post.slug %}"
-              class="btn btn-outline-success">
-              AMP page
             </a>
           </span>
         </div>
