@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from .forms import CommentForm
 from .models import Comment, Post
+from django.urls import reverse
 
 def post_detailview(request, id):
     post = Post.objects.get(id=id)
@@ -11,13 +12,14 @@ def post_detailview(request, id):
             content = request.POST.get("content")
             comment = Comment.objects.create(post = post, user = request.user, content = content)
             comment.save()
-            return redirect(post.get_absolute_url())
+            return redirect(reverse("post_detail", args=[str(post.id)]))
     else:
         cf = CommentForm()
         
         context ={
             "comment_form":cf,
-            "post":post
+            "post":post,
+            "comments":comments,
         }
         return render(request, "CommentsApp/post_detail.html", context)
     

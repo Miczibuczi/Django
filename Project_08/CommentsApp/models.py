@@ -21,7 +21,7 @@ class Post(models.Model):
             img.save(self.image.path)
 
 class Comment(models.Model):
-	post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+	post = models.ForeignKey("Post", on_delete=models.CASCADE, related_name="comments")
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	content = models.TextField()
 	timestamp = models.DateTimeField(auto_now_add=True)

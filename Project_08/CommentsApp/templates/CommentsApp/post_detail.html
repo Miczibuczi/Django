@@ -1,12 +1,27 @@
 <html>
   <head>
-    <title></title>
+    <title>{{ post.caption }}</title>
+    <style>
+      .author-name {
+        font-size: smaller;
+        color: gray;
+      }
+    </style>
   </head>
   <body>
+    <h1>{{ post.caption }}</h1>
     <img src="{{ post.image.url }}" />
     <form method="POST">
       {% csrf_token %} {{comment_form.as_p}}
       <button type="submit">Submit</button>
     </form>
+    <ul>
+      {% for comment in comments %}
+      <li>
+        {{ comment.content }}
+        <span class="author-name">by {{ comment.user.username }}</span>
+      </li>
+      {% endfor %}
+    </ul>
   </body>
 </html>
