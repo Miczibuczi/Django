@@ -1,0 +1,87 @@
+<html>
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
+      crossorigin="anonymous" />
+    <link href=”http://cdn.pydata.org/bokeh/release/bokeh-3.3.2.min.css "
+    rel=”stylesheet” type=”text/css”> <link
+    href=”http://cdn.pydata.org/bokeh/release/bokeh-widgets-3.3.2.min.css"
+    rel=”stylesheet” type=”text/css”>
+  </head>
+  <body>
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="page" href="#">Active</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Link</a>
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link disabled"
+          href="#"
+          tabindex="-1"
+          aria-disabled="true">
+          Disabled
+        </a>
+      </li>
+    </ul>
+    <h1 align="center">Data Visualization using Bokeh and Django</h1>
+    <div class="container overflow-hidden">
+      <div class="row gx-5">
+        <div class="col">
+          <div class="p-3 border bg-light">
+            Bokeh is a data visualization library for Python. Unlike Matplotlib
+            and Seaborn, they are also Python packages for data visualization,
+            Bokeh renders its plots using HTML and JavaScript. Hence, it proves
+            to be extremely useful for developing web based dashboards. The
+            Bokeh project is sponsored by NumFocus https://numfocus.org/.
+            NumFocus also supports PyData, an educational program, involved in
+            development of important tools such as NumPy, Pandas and more. Bokeh
+            can easily connect with these tools and produce interactive plots,
+            dashboards and data applications. Features Bokeh primarily converts
+            the data source into a JSON file which is used as input for BokehJS,
+            a JavaScript library, which in turn is written in TypeScript and
+            renders the visualizations in modern browsers. Some of the important
+            features of Bokeh are as follows − Flexibility Bokeh is useful for
+            common plotting requirements as well as custom and complex
+            use-cases. Productivity Bokeh can easily interact with other popular
+            Pydata tools such as Pandas and Jupyter notebook. Interactivity This
+            is an important advantage of Bokeh over Matplotlib and Seaborn, both
+            produce static plots. Bokeh creates interactive plots that change
+            when the user interacts with them. You can give your audience a wide
+            range of options and tools for inferring and looking at data from
+            various angles so that user can perform “what if” analysis. Powerful
+            By adding custom JavaScript, it is possible to generate
+            visualizations for specialised use-cases. Sharable Plots can be
+            embedded in output of Flask or Django enabled web applications. They
+            can also be rendered in Jupyter notebooks. Open source Bokeh is an
+            open source project. It is distributed under Berkeley Source
+            Distribution (BSD) license. Its source code is available on
+            https://github.com/bokeh/bokeh
+          </div>
+        </div>
+        <div class="col">
+          <div class="p-3 border bg-light">
+            <h1>Simple Bokeh Graph</h1>
+            {{ div| safe}}
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+      crossorigin="anonymous"></script>
+  </body>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.2.min.js"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.2.min.js"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.3.2.min.js"></script>
+  <script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-3.3.2.min.js"></script>
+  {{script| safe}}
+</html>
