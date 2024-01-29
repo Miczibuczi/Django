@@ -11,9 +11,23 @@
       crossorigin="anonymous" />
   </head>
   <body>
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}
+        {% if message.tags == "error" %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% elif message.tags == "info" %}
+          <div class="alert alert-success alert-dismissible fade show" role="alert">{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    {% endif %}
     <h1>
-      Hello, welcome to Social Media site{% if user.is_authenticated %} {{
-      user.username }}{% endif %}!
+      Hello, welcome to Social Media site{% if user.is_authenticated %} {{ user.username }}{% endif %}!
     </h1>
     {{username}}
     <script
