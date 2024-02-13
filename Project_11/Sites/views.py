@@ -1,10 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate
 from django.contrib import messages
-from .forms import LoginForm
+from .forms import LoginForm, RegisterForm
 
 def index(request):
-    return render(request, "base.html", {})
+    if request.user.is_authenticated:
+        return redirect("fanpage")
+    else:
+        return redirect("login")
 
 
 def Login(request):
@@ -19,3 +22,16 @@ def Login(request):
             messages.error(request, "Invalid username or password")
     form = LoginForm
     return render(request, "Sites/login.html", {"form":form})
+
+def Fanpage(request):
+    return render(request, "Sites/fanpage.html, {}")
+
+def Register(request):
+    if request.method == "POST":
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("login")
+    else:
+        form = RegisterForm()
+    return render(request, "Sites/register.html", {"form":form})
