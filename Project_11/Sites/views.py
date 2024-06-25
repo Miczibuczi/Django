@@ -31,6 +31,11 @@ def Register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
+            # add creating a fanpage for every new user
+            # add creating a fanpage for every new user
+            # add creating a fanpage for every new user
+            # add creating a fanpage for every new user
+            # add creating a fanpage for every new user
             return redirect("login")
     else:
         form = RegisterForm()

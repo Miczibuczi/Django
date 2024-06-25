@@ -20,11 +20,11 @@ class RegisterForm(forms.Form):
         if password != password2:
             raise ValidationError("Posswords do not match")
 
-        username = self.cleaned_data.get("username")
+        username = cleaned_data.get("username")
         if User.objects.filter(username=username).exists():
             raise ValidationError("Username is already taken.")
 
-        email = self.cleaned_data.get("email")
+        email = cleaned_data.get("email")
         if User.objects.filter(email=email).exists():
             raise ValidationError("Email is already taken")
         return cleaned_data
