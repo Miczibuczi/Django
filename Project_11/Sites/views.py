@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import LoginForm, RegisterForm
 from .models import UserWall
@@ -18,15 +18,21 @@ def Login(request):
         password = request.POST["password"]
         user = authenticate(username=username, password=password)
         if user is not None:
+            login(request, user)
             messages.info(request, f"Welcome {username}")
-            return render(request, "base.html", {"user":user})
+            return redirect("fanpage")
         else:
             messages.error(request, "Invalid username or password")
     form = LoginForm
     return render(request, "Sites/login.html", {"form":form})
 
+def Logout(request):
+    logout(request)
+    return redirect("login")
+
 def Fanpage(request):
-    return render(request, "Sites/fanpage.html, {}")
+    user = request.user
+    return render(request, "Sites/fanpage.html", {"user":user})
 
 def Register(request):
     if request.method == "POST":

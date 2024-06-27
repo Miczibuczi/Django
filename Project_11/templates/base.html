@@ -34,7 +34,12 @@
         <div class="col-auto mb-1">[your_site]</div>
         <div class="col-auto mb-1">{{ user.username }}</div>
         <div class="col-auto mb-1">[messages]</div>
-        <div class="col-auto mb-1"><a href="/login" class="text-decoration-none text-dark">Logout</a></div>
+        <div class="col-auto mb-1">
+          <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link text-decoration-none text-dark">Logout</button>
+          </form>
+        </div>
         {% endif %}
       </div>
     </div>
