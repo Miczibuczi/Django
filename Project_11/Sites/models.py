@@ -9,11 +9,32 @@ class UserWall(models.Model):
     def __str__(self):
         return f"{self.user.username}'s wall"
     
+class Fanpage(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fanpage")
+    title = models.CharField(max_length=150)
+
+    def __str__(self):
+        return self.title
+    
 class Post(models.Model):
-    wall = models.ForeignKey(UserWall, on_delete=models.CASCADE, related_name="posts")
+    wall = models.ForeignKey(UserWall, on_delete=models.CASCADE, related_name="posts", null=True, blank=True)
+    fanpage = models.ForeignKey(Fanpage, on_delete=models.CASCADE, related_name="posts", null=True, blank=True)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     image = models.FileField(upload_to="post_images", blank=True)
 
+    def save(self, *args, **kwargs):
+        if self.wall and self.fanpage:
+            raise ValueError("A post cannot belong to both UserWall and Fanpage.")
+        elif not self.wall and not self.fanpage:
+            raise ValueError("A post must belong to either UserWall or Fanpage")
+        super().save(*args, **kwargs)
+
+
     def __str__(self):
-        return f"Post on {self.wall.user.username}'s wall"
+        if self.wall:
+            return f"Post on {self.wall.user.username}'s wall"
+        elif self.fanpage:
+            return f"Post on {self.fanpage.title}"
+        else:
+            return f"Some error occured, the post doesn't belong to neither UserWall nor Fanpage"

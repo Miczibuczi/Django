@@ -1,13 +1,15 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .forms import LoginForm, RegisterForm
 from .models import UserWall
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 def index(request):
     if request.user.is_authenticated:
-        return redirect("fanpage")
+        username = request.user.username
+        return redirect(reverse("userwall", kwargs={'username': username}))
     else:
         return redirect("login")
 
@@ -20,7 +22,7 @@ def Login(request):
         if user is not None:
             login(request, user)
             messages.info(request, f"Welcome {username}")
-            return redirect("fanpage")
+            return redirect(reverse("userwall", kwargs={'username': username}))
         else:
             messages.error(request, "Invalid username or password")
     form = LoginForm
@@ -32,6 +34,10 @@ def Logout(request):
 
 def Fanpage(request):
     user = request.user
+    return render(request, "Sites/fanpage.html", {"user":user})
+
+def UserWall_view(request, username):
+    user = get_object_or_404(User, username=username)
     return render(request, "Sites/fanpage.html", {"user":user})
 
 def Register(request):
