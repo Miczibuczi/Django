@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, PostForm
 from .models import UserWall
 from django.contrib.auth.models import User
 from django.urls import reverse
 
-def index(request):
+def Index(request):
     if request.user.is_authenticated:
         username = request.user.username
         return redirect(reverse("userwall", kwargs={'username': username}))
@@ -33,12 +33,20 @@ def Logout(request):
     return redirect("login")
 
 def Fanpage(request):
-    user = request.user
-    return render(request, "Sites/fanpage.html", {"user":user})
+    if request.user.is_authenticated:
+        user = request.user
+        posts = user.wall.posts.all()
+        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts})
+    else:
+        return redirect("login")
 
 def UserWall_view(request, username):
     user = get_object_or_404(User, username=username)
-    return render(request, "Sites/fanpage.html", {"user":user})
+    if user.is_authenticated:
+        posts = user.wall.posts.all().order_by("-created_at")
+        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts})
+    else:
+        return redirect("login")
 
 def Register(request):
     if request.method == "POST":
@@ -53,4 +61,20 @@ def Register(request):
             return redirect("login")
     else:
         form = RegisterForm()
-    return render(request, "Sites/register.html", {"form":form})    
+    return render(request, "Sites/register.html", {"form":form})
+
+def Create_wall_post(request, username):
+    user = get_object_or_404(User, username=username)
+    if request.method == "POST":
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.wall = user.wall
+            post.save()
+            return redirect("userwall", username=username)
+    else:
+        form = PostForm()
+    return render(request, "Sites/post.html", {"form":form})
+
+def Create_fanpage_post(request, fanpage_name):
+    pass

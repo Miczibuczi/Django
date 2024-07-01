@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from .models import Post
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150)
@@ -28,3 +29,8 @@ class RegisterForm(forms.Form):
         if User.objects.filter(email=email).exists():
             raise ValidationError("Email is already taken")
         return cleaned_data
+    
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ["content", "image"]

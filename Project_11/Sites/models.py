@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from PIL import Image
 # Create your models here.
 
 class UserWall(models.Model):
@@ -29,6 +29,12 @@ class Post(models.Model):
         elif not self.wall and not self.fanpage:
             raise ValueError("A post must belong to either UserWall or Fanpage")
         super().save(*args, **kwargs)
+        if self.image:
+            img = Image.open(self.image.path)
+            if img.height > 800 or img.width > 800:
+                output_size = (800, 800)
+                img.thumbnail(output_size)
+                img.save(self.image.path)
 
 
     def __str__(self):
