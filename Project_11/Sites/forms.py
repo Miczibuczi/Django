@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
-from .models import Post
+from .models import Post, Fanpage
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150)
@@ -34,3 +34,8 @@ class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ["content", "image"]
+
+class FanpageForm(forms.ModelForm):
+    class Meta:
+        model = Fanpage
+        fields = ["fanpage_name"]

@@ -11,10 +11,10 @@ class UserWall(models.Model):
     
 class Fanpage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fanpage")
-    title = models.CharField(max_length=150)
+    fanpage_name = models.CharField(max_length=150, unique=True)
 
     def __str__(self):
-        return self.title
+        return self.fanpage_name
     
 class Post(models.Model):
     wall = models.ForeignKey(UserWall, on_delete=models.CASCADE, related_name="posts", null=True, blank=True)
@@ -41,6 +41,6 @@ class Post(models.Model):
         if self.wall:
             return f"Post on {self.wall.user.username}'s wall"
         elif self.fanpage:
-            return f"Post on {self.fanpage.title}"
+            return f"Post on {self.fanpage.fanpage_name}"
         else:
             return f"Some error occured, the post doesn't belong to neither UserWall nor Fanpage"
