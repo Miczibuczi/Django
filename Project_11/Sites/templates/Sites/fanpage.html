@@ -3,6 +3,15 @@
   <div class="row">
     <div class="col-3"></div>
     <div class="col-6">
+      <div class="text-center">
+        <a
+          href="{% url 'create_fanpage_post' fanpage_name=fanpage_name %}"
+          class="text-decoration-none text-dark text-center">
+          Create New Post
+        </a>
+      </div>
+      <br />
+      <br />
       {% for post in posts %} {% if post.image %}
       <img src="{{ post.image.url }}" alt="Post Imagae" />
       {% endif %}
@@ -10,13 +19,9 @@
       <p>Posted on {{ post.created_at }}</p>
       <hr />
       {% endfor %}
-      <a
-        href="{% url 'create_fanpage_post' fanpage_name=fanpage_name %}"
-        class="text-decoration-none text-dark">
-        Create New Post
-      </a>
-    </div>
+      </div>
     <div class="col-3"></div>
+    </div>
   </div>
+  {% endblock %}
 </div>
-{% endblock %}

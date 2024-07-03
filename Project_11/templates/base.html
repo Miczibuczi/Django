@@ -28,11 +28,11 @@
     {% endif %}
     <div class="container-fluid bg-primary m-0">
       <div class="row align-items-center">
-        <div class="col-7 fs-1 mx-5 mb-1">Social Media</div>
+        <div class="col-8 fs-1 mx-5 mb-1">Social Media</div>
         {% if user.is_authenticated %}
-        <div class="col-auto mb-1"><a href="{% url 'create_fanpage' %}" class="text-decoration-none text-dark">Create New Fanpage</a></div>
+        <div class="col-auto mb-1"><a href="{% url 'create_fanpage' %}" class="text-decoration-none text-dark">New Fanpage</a></div>
         <div class="col-auto mb-1"><a href="{% url 'userwall' username=request.user.username %}" class="text-decoration-none text-dark">Your Wall</a></div>
-        <div class="col-auto mb-1">{{ user.username }}</div>
+        <div class="col-auto mb-1"><a href="{% url 'user_details' %}" class="text-decoration-none text-dark">{{ user.username }}</a></div>
         <div class="col-auto mb-1">[messages]</div>
         <div class="col-auto mb-1">
           <form action="{% url 'logout' %}" method="post">

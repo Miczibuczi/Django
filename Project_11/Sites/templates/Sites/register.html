@@ -2,6 +2,10 @@
 <br />
 <form method="post">
   {% csrf_token %} {{ form.as_p}}
+  <p>
+    Already have an account? Login
+    <a href="/login">here</a>
+  </p>
   <button type="submit">Register</button>
 </form>
 {% endblock %}

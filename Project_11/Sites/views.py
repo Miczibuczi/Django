@@ -25,6 +25,8 @@ def Login(request):
             return redirect(reverse("userwall", kwargs={'username': username}))
         else:
             messages.error(request, "Invalid username or password")
+            form = LoginForm
+            return render(request, "Sites/login.html", {"form":form})
     form = LoginForm
     return render(request, "Sites/login.html", {"form":form})
 
@@ -105,3 +107,11 @@ def Create_fanpage_view(request):
     else:
         form = FanpageForm()
     return render(request, "Sites/create_fanpage.html", {"form":form})
+
+def User_details(request):
+    user = get_object_or_404(User, username=request.user.username)
+    fanpages = user.fanpage.all()
+    print("anything", fanpages)
+    for fanpage in fanpages:
+        print(fanpage.fanpage_name)
+    return render(request, "Sites/user_details.html", {"user":user, "fanpages":fanpages})
