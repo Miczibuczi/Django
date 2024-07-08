@@ -1,9 +1,10 @@
 {% extends "base.html" %} {% block content %}
-<br>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p}}
-  <p>Don't have an account? Register <a href="/register">here</a></p>
-  <button type="submit">Login</button>
-</form>
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p}}
+    <p>Don't have an account? Register <a href="/register">here</a></p>
+    <div class="text-center"><button type="submit">Login</button></div>
+  </form>
+</div>
 {% endblock %}

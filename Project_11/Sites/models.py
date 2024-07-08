@@ -44,3 +44,15 @@ class Post(models.Model):
             return f"Post on {self.fanpage.fanpage_name}"
         else:
             return f"Some error occured, the post doesn't belong to neither UserWall nor Fanpage"
+        
+class LastVisited(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="last_visited")
+    last_visited = models.JSONField(default=list, blank=True)
+
+    def update_last_visited(self, url):
+        if url in self.last_visited:
+            self.last_visited.remove(url)
+        self.last_visited.insert(0, url)
+        if len(self.last_visited) > 10:
+            self.last_visited.pop()
+        self.save()
