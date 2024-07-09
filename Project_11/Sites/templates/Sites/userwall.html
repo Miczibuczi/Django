@@ -1,10 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <div class="text-center">
+  {% if user == request.user %}
   <a
     href="{% url 'create_wall_post' username=request.user.username %}"
     class="text-decoration-none text-dark">
     Create New Post
   </a>
+  {% endif %}
 </div>
 <br />
 <br />

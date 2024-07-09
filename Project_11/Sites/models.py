@@ -53,6 +53,6 @@ class LastVisited(models.Model):
         if url in self.last_visited:
             self.last_visited.remove(url)
         self.last_visited.insert(0, url)
-        if len(self.last_visited) > 10:
+        if len(self.last_visited) > 8:
             self.last_visited.pop()
         self.save()

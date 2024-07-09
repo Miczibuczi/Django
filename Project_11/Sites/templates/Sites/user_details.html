@@ -1,20 +1,22 @@
 {% extends "base.html" %} {% block content %}
-<p>
-  Your userwall:
-  <a href="{% url 'userwall' username=user.username %}">{{ user.wall }}</a>
-</p>
-<p>Your fanpages:</p>
-
-{% if fanpages %}
-<ul>
-  {% for fanpage in fanpages %}
-  <li>
-    <a href="{% url 'fanpage' fanpage_name=fanpage.fanpage_name %}">
-      {{fanpage.fanpage_name}}
-    </a>
-  </li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>None</p>
-{% endif %} {% endblock %}
+<div class="d-flex flex-column justify-content-center align-items-center">
+  <p>
+    Your userwall:
+    <a href="{% url 'userwall' username=user.username %}">{{ user.wall }}</a>
+  </p>
+  <p>Your fanpages:</p>
+  {% if fanpages %}
+  <ul class="list-unstyled">
+    {% for fanpage in fanpages %}
+    <li>
+      <a href="{% url 'fanpage' fanpage_name=fanpage.fanpage_name %}">
+        {{fanpage.fanpage_name}}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>None</p>
+  {% endif %}
+</div>
+{% endblock %}

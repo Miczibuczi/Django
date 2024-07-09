@@ -1,10 +1,12 @@
 {% extends "base.html" %} {% block content %}
 <div class="text-center">
+  {% if user == fanpage.user %}
   <a
-    href="{% url 'create_fanpage_post' fanpage_name=fanpage_name %}"
+    href="{% url 'create_fanpage_post' fanpage_name=fanpage.fanpage_name %}"
     class="text-decoration-none text-dark text-center">
     Create New Post
   </a>
+  {% endif %}
 </div>
 <br />
 <br />

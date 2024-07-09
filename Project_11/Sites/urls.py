@@ -12,4 +12,5 @@ urlpatterns = [
     path("fanpage/<str:fanpage_name>/", views.Fanpage_view, name="fanpage"),
     path("fanpage/<str:fanpage_name>/post/", views.Create_fanpage_post, name="create_fanpage_post"),
     path("user_details/", views.User_details, name="user_details"),
+    path("serach/", views.Search, name="search"),
 ]

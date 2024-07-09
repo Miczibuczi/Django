@@ -41,17 +41,17 @@ def Fanpage_view(request, fanpage_name):
         last_visited, _ = LastVisited.objects.get_or_create(user=user)
         last_visited.update_last_visited(f"fanpage/{fanpage.fanpage_name}/")
         posts = fanpage.posts.all().order_by("-created_at")
-        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts, "fanpage_name":fanpage.fanpage_name, "last_visited":last_visited.last_visited})
+        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts, "fanpage":fanpage, "last_visited":last_visited.last_visited})
     else:
         return redirect("login")
 
 def UserWall_view(request, username):
     user = get_object_or_404(User, username=username)
     if user.is_authenticated:
-        last_visited, _ = LastVisited.objects.get_or_create(user=user)
+        last_visited, _ = LastVisited.objects.get_or_create(user=request.user)
         last_visited.update_last_visited(f"wall/{user.username}/")
         posts = user.wall.posts.all().order_by("-created_at")
-        return render(request, "Sites/userwall.html", {"user":user, "posts":posts, "last_visited":last_visited.last_visited})
+        return render(request, "Sites/userwall.html", {"user":user, "posts":posts, "last_visited":last_visited.last_visited, "request":request})
     else:
         return redirect("login")
 
@@ -81,7 +81,7 @@ def Create_wall_post(request, username):
             return redirect("userwall", username=username)
     else:
         form = PostForm()
-        last_visited, _ = LastVisited.objects.get_or_create(user=user)
+        last_visited, _ = LastVisited.objects.get_or_create(user=request.user)
     return render(request, "Sites/post.html", {"form":form, "last_visited":last_visited.last_visited})
 
 def Create_fanpage_post(request, fanpage_name):
@@ -94,6 +94,9 @@ def Create_fanpage_post(request, fanpage_name):
             post.fanpage = fanpage
             post.save()
             return redirect("fanpage", fanpage_name=fanpage.fanpage_name)
+    elif user != fanpage.user:
+        messages.error(request, "You can make posts only on your fanpages")
+        return redirect("user_details")
     else:
         form = PostForm()
         last_visited, _ = LastVisited.objects.get_or_create(user=user)
@@ -118,8 +121,18 @@ def Create_fanpage_view(request):
 def User_details(request):
     user = get_object_or_404(User, username=request.user.username)
     fanpages = user.fanpage.all()
-    print("anything", fanpages)
-    for fanpage in fanpages:
-        print(fanpage.fanpage_name)
     last_visited, _ = LastVisited.objects.get_or_create(user=user)
     return render(request, "Sites/user_details.html", {"user":user, "fanpages":fanpages, "last_visited":last_visited.last_visited})
+
+def Search(request):
+    query = request.GET.get("query")
+    fanpages = Fanpage.objects.filter(fanpage_name__icontains=query)
+    walls = UserWall.objects.filter(user__username__icontains=query)
+    last_visited, _ = LastVisited.objects.get_or_create(user=request.user)
+    if len(fanpages) + len(walls) == 1:
+        if len(fanpages) == 1:
+            return redirect("fanpage", fanpage_name=fanpages[0].fanpage_name)
+        else:
+            return redirect("userwall", username=walls[0].user.username)
+    else:
+        return render(request, "Sites/search_results.html", {"fanpages":fanpages, "walls":walls, "query":query, "last_visited":last_visited.last_visited})

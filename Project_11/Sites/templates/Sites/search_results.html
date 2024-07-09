@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+<h2>Search result for "{{query}}"</h2>
+<h3>Fanpages:</h3>
+<ul>
+  {% for fanpage in fanpages %}
+  <li>
+    <a href="{% url 'fanpage' fanpage_name=fanpage.fanpage_name %}">
+      {{ fanpage.fanpage_name }}
+    </a>
+  </li>
+  {% empty %}
+  <li>No fanpages found.</li>
+  {% endfor %}
+</ul>
+<h3>Walls:</h3>
+<ul>
+  {% for wall in walls %}
+  <li>
+    <a href="{% url 'userwall' username=wall.user.username %}">{{ wall }}</a>
+  </li>
+  {% empty %}
+  <li>No walls found.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
