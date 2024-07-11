@@ -5,6 +5,7 @@ from PIL import Image
 
 class UserWall(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="wall")
+    views = models.IntegerField(default=0)
 
     def __str__(self):
         return f"{self.user.username}'s wall"
@@ -12,6 +13,7 @@ class UserWall(models.Model):
 class Fanpage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fanpage")
     fanpage_name = models.CharField(max_length=150, unique=True)
+    views = models.IntegerField(default=0)
 
     def __str__(self):
         return self.fanpage_name

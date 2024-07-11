@@ -6,6 +6,24 @@ from .models import UserWall, Fanpage, LastVisited
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+# utility function
+def get_visited_with_counts(user):
+    last_visited, _ = LastVisited.objects.get_or_create(user=user)
+
+    visited_with_counts = []
+    for url in last_visited.last_visited:
+        if url.startswith("wall/"):
+            username = url.split("/")[1]
+            wall = get_object_or_404(UserWall, user__username=username)
+            visited_with_counts.append({"url":url, "views":wall.views})
+        elif url.startswith("fanpage/"):
+            fanpage_name = url.split("/")[1]
+            fanpage = get_object_or_404(Fanpage, fanpage_name=fanpage_name)
+            visited_with_counts.append({"url":url, "views":fanpage.views})
+    
+    return visited_with_counts
+
+
 def Index(request):
     if request.user.is_authenticated:
         username = request.user.username
@@ -38,20 +56,26 @@ def Fanpage_view(request, fanpage_name):
     user = request.user
     fanpage = get_object_or_404(Fanpage, fanpage_name=fanpage_name)
     if user.is_authenticated:
+        fanpage.views += 1
+        fanpage.save()
         last_visited, _ = LastVisited.objects.get_or_create(user=user)
         last_visited.update_last_visited(f"fanpage/{fanpage.fanpage_name}/")
+        visited_with_counts = get_visited_with_counts(request.user)
         posts = fanpage.posts.all().order_by("-created_at")
-        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts, "fanpage":fanpage, "last_visited":last_visited.last_visited})
+        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts, "fanpage":fanpage, "last_visited":visited_with_counts})
     else:
         return redirect("login")
 
 def UserWall_view(request, username):
     user = get_object_or_404(User, username=username)
     if user.is_authenticated:
+        user.wall.views += 1
+        user.wall.save()
         last_visited, _ = LastVisited.objects.get_or_create(user=request.user)
         last_visited.update_last_visited(f"wall/{user.username}/")
+        visited_with_counts = get_visited_with_counts(request.user)
         posts = user.wall.posts.all().order_by("-created_at")
-        return render(request, "Sites/userwall.html", {"user":user, "posts":posts, "last_visited":last_visited.last_visited, "request":request})
+        return render(request, "Sites/userwall.html", {"user":user, "posts":posts, "last_visited":visited_with_counts, "request":request})
     else:
         return redirect("login")
 
@@ -82,7 +106,8 @@ def Create_wall_post(request, username):
     else:
         form = PostForm()
         last_visited, _ = LastVisited.objects.get_or_create(user=request.user)
-    return render(request, "Sites/post.html", {"form":form, "last_visited":last_visited.last_visited})
+        visited_with_counts = get_visited_with_counts(request.user)
+    return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts})
 
 def Create_fanpage_post(request, fanpage_name):
     user = request.user
@@ -100,7 +125,8 @@ def Create_fanpage_post(request, fanpage_name):
     else:
         form = PostForm()
         last_visited, _ = LastVisited.objects.get_or_create(user=user)
-    return render(request, "Sites/post.html", {"form":form, "last_visited":last_visited.last_visited})
+        visited_with_counts = get_visited_with_counts(request.user)
+    return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts})
 
 def Create_fanpage_view(request):
     if request.method == "POST":
@@ -116,23 +142,26 @@ def Create_fanpage_view(request):
     else:
         form = FanpageForm()
         last_visited, _ = LastVisited.objects.get_or_create(user=request.user)
-    return render(request, "Sites/create_fanpage.html", {"form":form, "last_visited":last_visited.last_visited})
+        visited_with_counts = get_visited_with_counts(request.user)
+    return render(request, "Sites/create_fanpage.html", {"form":form, "last_visited":visited_with_counts})
 
 def User_details(request):
     user = get_object_or_404(User, username=request.user.username)
     fanpages = user.fanpage.all()
     last_visited, _ = LastVisited.objects.get_or_create(user=user)
-    return render(request, "Sites/user_details.html", {"user":user, "fanpages":fanpages, "last_visited":last_visited.last_visited})
+    visited_with_counts = get_visited_with_counts(request.user)
+    return render(request, "Sites/user_details.html", {"user":user, "fanpages":fanpages, "last_visited":visited_with_counts})
 
 def Search(request):
     query = request.GET.get("query")
     fanpages = Fanpage.objects.filter(fanpage_name__icontains=query)
     walls = UserWall.objects.filter(user__username__icontains=query)
     last_visited, _ = LastVisited.objects.get_or_create(user=request.user)
+    visited_with_counts = get_visited_with_counts(request.user)
     if len(fanpages) + len(walls) == 1:
         if len(fanpages) == 1:
             return redirect("fanpage", fanpage_name=fanpages[0].fanpage_name)
         else:
             return redirect("userwall", username=walls[0].user.username)
     else:
-        return render(request, "Sites/search_results.html", {"fanpages":fanpages, "walls":walls, "query":query, "last_visited":last_visited.last_visited})
+        return render(request, "Sites/search_results.html", {"fanpages":fanpages, "walls":walls, "query":query, "last_visited":visited_with_counts})
