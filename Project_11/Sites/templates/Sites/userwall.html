@@ -6,6 +6,20 @@
     class="text-decoration-none text-dark">
     Create New Post
   </a>
+  {% elif user in sent_invitations %}
+  <p>Invitaion sent</p>
+  {% elif user in received_invitations %}
+  <a
+    href="{% url 'accept_invitation' username=user.username %}"
+    class="btn btn-primary">
+    Accept {{ user.username }} invitation
+  </a>
+  {% elif user not in friends %}
+  <a
+    href="{% url 'send_invitation' username=user.username %}"
+    class="btn btn-primary">
+    Add {{ user.username }} to friends
+  </a>
   {% endif %}
 </div>
 <br />

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from PIL import Image
+from django.utils import timezone
+from django.db.models import Q
 # Create your models here.
 
 class UserWall(models.Model):
@@ -58,3 +60,54 @@ class LastVisited(models.Model):
         if len(self.last_visited) > 8:
             self.last_visited.pop()
         self.save()
+
+class Friendship(models.Model):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+
+    STATUS_CHOICES = [
+        (PENDING, "Pending"),
+        (ACCEPTED, "Accepted")
+    ]
+
+    sender = models.ForeignKey(User, related_name="sender", on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name="receiver", on_delete=models.CASCADE)
+    last_action = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=PENDING)
+
+    class Meta:
+        unique_together = ("sender", "receiver")
+
+    def __str__(self):
+        if self.status == self.ACCEPTED:
+            return f"{self.sender.username} is a friend to {self.receiver.username}"
+        else:
+            return f"{self.sender.username} has sent an invitation to {self.receiver.username}"
+    
+    def update_last_action(self):
+        self.last_action = timezone.now()
+        self.save()
+
+    @classmethod
+    def get_friends(self, user):
+        friendships = self.objects.filter(Q(sender=user, status=self.ACCEPTED) | Q(receiver=user, status=self.ACCEPTED))
+        friends = []
+        for friendship in friendships.order_by("-last_action"):
+            friends.append(friendship.sender if friendship.receiver==user else friendship.receiver)
+        return friends
+    
+    @classmethod
+    def get_sent_invitations(self, user):
+        friendships = self.objects.filter(sender=user, status=self.PENDING)
+        sent_invitations = []
+        for invitation in friendships.order_by("-last_action"):
+            sent_invitations.append(invitation.receiver)
+        return sent_invitations
+
+    @classmethod
+    def get_received_invitations(self, user):
+        friendships = self.objects.filter(receiver=user, status=self.PENDING)
+        received_invitations = []
+        for invitation in friendships.order_by("-last_action"):
+            received_invitations.append(invitation.sender)
+        return received_invitations
