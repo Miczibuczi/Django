@@ -13,7 +13,9 @@ urlpatterns = [
     path("fanpage/<str:fanpage_name>/post/", views.Create_fanpage_post, name="create_fanpage_post"),
     path("user_details/", views.User_details, name="user_details"),
     path("serach/", views.Search, name="search"),
-    path("add_friend/<str:username>", views.Send_friend_request, name="send_invitation"),
-    path("accept_friend/<str:username>", views.Accept_friend_request, name="accept_invitation"),
-    path("friends_details/<str:username>", views.Friends_details, name="friends_details"),
+    path("add_friend/<str:username>/", views.Send_friend_request, name="send_invitation"),
+    path("accept_friend/<str:username>/", views.Accept_friend_request, name="accept_invitation"),
+    path("friends_details/", views.Friends_details, name="friends_details"),
+    path("reject_friend/<str:username>/", views.Reject_friend_request, name="reject_invitation"),
+    path("delete_friendship/<str:username>", views.Delete_friendship, name="delete_friendship"),
 ]

@@ -1,4 +1,63 @@
 {% extends "base.html" %} {% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $("#send-friend-request").click(function () {
+      var username = $(this).data("username");
+      $.ajax({
+        url: "{% url 'send_invitation' username=user.username %}",
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+          location.reload();
+        },
+      });
+    });
+
+    $("#accept-friend-request").click(function () {
+      var username = $(this).data("username");
+      $.ajax({
+        url: "{% url 'accept_invitation' username=user.username %}",
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+          location.reload();
+        },
+      });
+    });
+
+    $("#reject-friend-request").click(function () {
+      var username = $(this).data("username");
+      $.ajax({
+        url: "{% url 'reject_invitation' username=user.username %}",
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+          location.reload();
+        },
+      });
+    });
+  });
+</script>
+<br />
 <div class="text-center">
   {% if user == request.user %}
   <a
@@ -7,27 +66,41 @@
     Create New Post
   </a>
   {% elif user in sent_invitations %}
-  <p>Invitaion sent</p>
+  <button class="btn btn-secondary" disabled>Invitation sent</button>
   {% elif user in received_invitations %}
-  <a
-    href="{% url 'accept_invitation' username=user.username %}"
-    class="btn btn-primary">
+  <button
+    id="accept-friend-request"
+    data-username="{{ user.username }}"
+    class="btn btn-success">
     Accept {{ user.username }} invitation
-  </a>
+  </button>
+  <button
+    id="reject-friend-request"
+    data-username="{{ user.username }}"
+    class="btn btn-danger">
+    Reject {{ user.username }} invitation
+  </button>
   {% elif user not in friends %}
-  <a
-    href="{% url 'send_invitation' username=user.username %}"
+  <button
+    id="send-friend-request"
+    data-username="{{ user.username }}"
     class="btn btn-primary">
     Add {{ user.username }} to friends
-  </a>
+  </button>
   {% endif %}
 </div>
-<br />
-<br />
 {% for post in posts %} {% if post.image %}
 <img src="{{ post.image.url }}" alt="Post Imagae" />
 {% endif %}
 <p>{{ post.content }}</p>
 <p>Posted on {{ post.created_at }}</p>
 <hr />
+{% empty %}
+<div class="text-center">
+  {% if user != request.user %}
+  <p>There is no posts on {{ user.username }} wall</p>
+  {% else %}
+  <p>There is no posts on your wall</p>
+  {% endif %}
+</div>
 {% endfor %} {% endblock %}

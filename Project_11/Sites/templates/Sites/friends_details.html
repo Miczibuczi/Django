@@ -1,2 +1,47 @@
-{% extends "base.html" %} {% block content %} Nothing in there so far
+{% extends "base.html" %} {% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $(".delete-friendship").click(function () {
+      var username = $(this).data("username");
+      $.ajax({
+        url: "{% url 'delete_friendship' username='USERNAME_PLACEHOLDER' %}".replace(
+          "USERNAME_PLACEHOLDER",
+          username
+        ),
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+          alert("An error occurred. Please try again.");
+        },
+      });
+    });
+  });
+</script>
+<div class="d-flex flex-column justify-content-center align-items-center">
+  {% if friends %}
+  <p>Your friends:</p>
+  <ul class="list-unstyled">
+    {% for friend in friends %}
+    <li>
+      <a href="{% url 'userwall' username=friend.username %}">
+        {{ friend.username }}
+      </a>
+      &nbsp;
+      <button class="delete-friendship" data-username="{{ friend.username }}">
+        Delete Friendship
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>You don't have any friends yet</p>
+  {% endif %}
+</div>
 {%endblock%}

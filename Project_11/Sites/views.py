@@ -5,6 +5,8 @@ from .forms import LoginForm, RegisterForm, PostForm, FanpageForm
 from .models import UserWall, Fanpage, LastVisited, Friendship
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.http import JsonResponse
+from django.db.models import Q
 
 # utility function
 def get_visited_with_counts(user):
@@ -74,9 +76,9 @@ def UserWall_view(request, username):
         last_visited.update_last_visited(f"wall/{user.username}/")
         visited_with_counts = get_visited_with_counts(request.user)
         posts = user.wall.posts.all().order_by("-created_at")
-        friends = Friendship.get_friends(user)
-        sent_invitations = Friendship.get_sent_invitations(user)
-        received_invitations = Friendship.get_received_invitations(user)
+        friends = Friendship.get_friends(request.user)
+        sent_invitations = Friendship.get_sent_invitations(request.user)
+        received_invitations = Friendship.get_received_invitations(request.user)
         return render(request, "Sites/userwall.html", {"user":user, "posts":posts, "last_visited":visited_with_counts, "request":request, "friends":friends, "sent_invitations":sent_invitations, "received_invitations":received_invitations})
     else:
         return redirect("login")
@@ -169,24 +171,55 @@ def Send_friend_request(request, username):
     if created:
         friendship.save()
         messages.info(request, f"Invitation sent to {receiver.username}")
+        return JsonResponse({"status":"success"})
     elif friendship.status == "accepted":
         messages.error(request, f"{receiver.username} already is your friend")
     elif friendship.status == "pending":
         messages.error(request, "Invitation already sent")
     else:
         messages.error(request, "Unknown error. Check the Send_friend_request view")
-    return redirect("friends_details", username=request.user)
+    return JsonResponse({"status":"error"})
 
 def Accept_friend_request(request, username):
+    if request.method == "POST":
+        sender = get_object_or_404(User, username=username)
+        friendship = get_object_or_404(Friendship, sender=sender, receiver=request.user)
+        if friendship.status == "accepted":
+            messages.error(request, f"You've already accepted the invitation from {sender.username}")
+            return JsonResponse({"status":"error"})
+        else:
+            friendship.status = "accepted"
+            friendship.save()
+            messages.info(request, "Friend request accepted")
+            return JsonResponse({"status":"success"})
+    messages.error(request, "Some error occured. Check Accept_friend_request view")
+    return JsonResponse({"status":"error"})
+
+def Reject_friend_request(request, username):
     sender = get_object_or_404(User, username=username)
     friendship = get_object_or_404(Friendship, sender=sender, receiver=request.user)
     if friendship.status == "accepted":
-        messages.error(request, f"You've already accepted the invitation from {sender}")
+        messages.error(request, f"You've already accepted the invitation from {sender.username}")
+        return JsonResponse({"status": "error"})
     else:
-        friendship.status = "accepted"
-        friendship.save()
-        messages.info(request, "Friend request accepted")
-    return redirect("friends_details", username=request.user)
+        friendship.delete()
+        messages.info(request, f"Friend request from {sender.username} rejected")
+        return JsonResponse({"status": "success"})
 
-def Friends_details(request, username):
-    return render(request, "Sites/friends_details.html")
+def Delete_friendship(request, username):
+    if request.method == "POST":
+        friend = get_object_or_404(User, username=username)
+        friendship = get_object_or_404(Friendship,
+            Q(sender=request.user, receiver=friend, status="accepted") |
+            Q(sender=friend, receiver=request.user, status="accepted")
+        )
+        friendship.delete()
+        messages.info(request, "Friendship deleted")
+        return JsonResponse({"status": "success"})
+    messages.error(request, "Some error occured. Check Delete_friendship view")
+    return JsonResponse({"status": "error"})
+
+def Friends_details(request):
+    friends = Friendship.get_friends(request.user)
+    visited_with_counts = get_visited_with_counts(request.user)
+    return render(request, "Sites/friends_details.html", {"friends":friends, "last_visited":visited_with_counts})
