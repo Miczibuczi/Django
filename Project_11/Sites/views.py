@@ -63,7 +63,8 @@ def Fanpage_view(request, fanpage_name):
         last_visited.update_last_visited(f"fanpage/{fanpage.fanpage_name}/")
         visited_with_counts = get_visited_with_counts(request.user)
         posts = fanpage.posts.all().order_by("-created_at")
-        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts, "fanpage":fanpage, "last_visited":visited_with_counts})
+        friends18 = Friendship.get_friends(request.user)[:18]
+        return render(request, "Sites/fanpage.html", {"user":user, "posts":posts, "fanpage":fanpage, "last_visited":visited_with_counts, "friends18":friends18})
     else:
         return redirect("login")
 
@@ -79,7 +80,8 @@ def UserWall_view(request, username):
         friends = Friendship.get_friends(request.user)
         sent_invitations = Friendship.get_sent_invitations(request.user)
         received_invitations = Friendship.get_received_invitations(request.user)
-        return render(request, "Sites/userwall.html", {"user":user, "posts":posts, "last_visited":visited_with_counts, "request":request, "friends":friends, "sent_invitations":sent_invitations, "received_invitations":received_invitations})
+        friends18 = Friendship.get_friends(request.user)[:18]
+        return render(request, "Sites/userwall.html", {"user":user, "posts":posts, "last_visited":visited_with_counts, "request":request, "friends":friends, "friends18":friends18, "sent_invitations":sent_invitations, "received_invitations":received_invitations})
     else:
         return redirect("login")
 
@@ -100,6 +102,7 @@ def Register(request):
 
 def Create_wall_post(request, username):
     user = get_object_or_404(User, username=username)
+    friends18 = Friendship.get_friends(request.user)[:18]
     if request.method == "POST":
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -110,11 +113,12 @@ def Create_wall_post(request, username):
     else:
         form = PostForm()
         visited_with_counts = get_visited_with_counts(request.user)
-    return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts})
+    return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts, "friends18":friends18})
 
 def Create_fanpage_post(request, fanpage_name):
     user = request.user
     fanpage = get_object_or_404(Fanpage, fanpage_name=fanpage_name)
+    friends18 = Friendship.get_friends(request.user)[:18]
     if request.method == "POST" and user == fanpage.user:
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
@@ -128,7 +132,7 @@ def Create_fanpage_post(request, fanpage_name):
     else:
         form = PostForm()
         visited_with_counts = get_visited_with_counts(request.user)
-    return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts})
+    return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts, "friends18":friends18})
 
 def Create_fanpage_view(request):
     if request.method == "POST":
@@ -144,13 +148,15 @@ def Create_fanpage_view(request):
     else:
         form = FanpageForm()
         visited_with_counts = get_visited_with_counts(request.user)
-    return render(request, "Sites/create_fanpage.html", {"form":form, "last_visited":visited_with_counts})
+        friends18 = Friendship.get_friends(request.user)[:18]
+    return render(request, "Sites/create_fanpage.html", {"form":form, "last_visited":visited_with_counts, "friends18":friends18})
 
 def User_details(request):
     user = get_object_or_404(User, username=request.user.username)
     fanpages = user.fanpage.all()
     visited_with_counts = get_visited_with_counts(request.user)
-    return render(request, "Sites/user_details.html", {"user":user, "fanpages":fanpages, "last_visited":visited_with_counts})
+    friends18 = Friendship.get_friends(request.user)[:18]
+    return render(request, "Sites/user_details.html", {"user":user, "fanpages":fanpages, "last_visited":visited_with_counts, "friends18":friends18})
 
 def Search(request):
     query = request.GET.get("query")
@@ -205,6 +211,17 @@ def Reject_friend_request(request, username):
         friendship.delete()
         messages.info(request, f"Friend request from {sender.username} rejected")
         return JsonResponse({"status": "success"})
+    
+def Cancel_friend_request(request, username):
+    receiver = get_object_or_404(User, username=username)
+    friendship = get_object_or_404(Friendship, sender=request.user, receiver=receiver)
+    if friendship.status == "accepted":
+        messages.error(request, f"Your invitation for {receiver.username} was already accepter")
+        return JsonResponse({"status": "error"})
+    else:
+        friendship.delete()
+        messages.info(request, f"You've cancelled the invitation for {receiver.username}")
+        return JsonResponse({"status": "success"})
 
 def Delete_friendship(request, username):
     if request.method == "POST":
@@ -221,5 +238,8 @@ def Delete_friendship(request, username):
 
 def Friends_details(request):
     friends = Friendship.get_friends(request.user)
+    friends18 = Friendship.get_friends(request.user)[:18]
     visited_with_counts = get_visited_with_counts(request.user)
-    return render(request, "Sites/friends_details.html", {"friends":friends, "last_visited":visited_with_counts})
+    sent_invitations = Friendship.get_sent_invitations(request.user)
+    received_invitations = Friendship.get_received_invitations(request.user)
+    return render(request, "Sites/friends_details.html", {"friends18":friends18, "friends":friends, "last_visited":visited_with_counts, "sent_invitations":sent_invitations, "received_invitations":received_invitations})

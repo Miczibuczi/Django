@@ -9,11 +9,18 @@
   {% endif %}
 </div>
 <br />
-<br />
 {% for post in posts %} {% if post.image %}
 <img src="{{ post.image.url }}" alt="Post Imagae" />
 {% endif %}
 <p>{{ post.content }}</p>
 <p>Posted on {{ post.created_at }}</p>
 <hr />
+{% empty %}
+<div class="text-center">
+  {% if user != request.user %}
+  <p>There is no posts on {{ user.username }} fanpage</p>
+  {% else %}
+  <p>There is no posts on your fanpage yet</p>
+  {% endif %}
+</div>
 {% endfor %}{% endblock %}

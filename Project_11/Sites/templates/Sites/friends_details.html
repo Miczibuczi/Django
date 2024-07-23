@@ -22,8 +22,72 @@
         },
       });
     });
+
+    $(".accept-friend-request").click(function () {
+      var username = $(this).data("username");
+      $.ajax({
+        url: "{% url 'accept_invitation' username='USERNAME_PLACEHOLDER' %}".replace(
+          "USERNAME_PLACEHOLDER",
+          username
+        ),
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+          location.reload();
+        },
+      });
+    });
+
+    $(".reject-friend-request").click(function () {
+      var username = $(this).data("username");
+      $.ajax({
+        url: "{% url 'reject_invitation' username='USERNAME_PLACEHOLDER' %}".replace(
+          "USERNAME_PLACEHOLDER",
+          username
+        ),
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+          location.reload();
+        },
+      });
+    });
+
+    $(".cancel_invitation").click(function () {
+      var username = $(this).data("username");
+      $.ajax({
+        url: "{% url 'cancel_invitation' username='USERNAME_PLACEHOLDER' %}".replace(
+          "USERNAME_PLACEHOLDER",
+          username
+        ),
+        type: "POST",
+        data: {
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (response) {
+          location.reload();
+        },
+        error: function (xhr, errmsg, err) {
+          console.log(xhr.status + ": " + xhr.responseText);
+          location.reload();
+        },
+      });
+    });
   });
 </script>
+
 <div class="d-flex flex-column justify-content-center align-items-center">
   {% if friends %}
   <p>Your friends:</p>
@@ -42,6 +106,57 @@
   </ul>
   {% else %}
   <p>You don't have any friends yet</p>
+  {% endif %}
+
+  <hr style="width: 100%" />
+
+  {% if received_invitations %}
+  <p>Received invitations:</p>
+  <ul class="list-unstyled">
+    {% for sender in received_invitations %}
+    <li>
+      <a href="{% url 'userwall' username=sender.username %}">
+        {{ sender.username }}
+      </a>
+      &nbsp;
+      <button
+        class="accept-friend-request"
+        data-username="{{ sender.username }}">
+        Accept invitation
+      </button>
+      <button
+        class="reject-friend-request"
+        data-username="{{ sender.username }}">
+        Reject invitation
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>You don't have any pending received invitations</p>
+  {% endif %}
+
+  <hr style="width: 100%" />
+
+  {% if sent_invitations %}
+  <p>Sent invitations:</p>
+  <ul class="list-unstyled">
+    {% for invited_user in sent_invitations %}
+    <li>
+      <a href="{% url 'userwall' username=invited_user.username %}">
+        {{ invited_user.username }}
+      </a>
+      &nbsp;
+      <button
+        class="cancel_invitation"
+        data-username="{{ invited_user.username }}">
+        Cancel invitation
+      </button>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>You don't have any pending sent invitations</p>
   {% endif %}
 </div>
 {%endblock%}
