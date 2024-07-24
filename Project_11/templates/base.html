@@ -1,8 +1,11 @@
+{% load static %}    
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="{% static 'styles.css' %}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Social Media</title>
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -91,14 +94,20 @@
           <br>
           <div class="text-center"><h5>Your friends</h5>
             <div class="list-group">
-              {% for friend in friends18 %}
-              <a href="{% url 'userwall' username=friend.username %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                <span class="mx-auto">{{ friend.username }}</span>
+              {% for friend_with_friendshipId in friends18 %}
+              <button class="open-chat-button list-group-item list-group-item-action d-flex justify-content-between align-items-center" data-friendship-id="{{ friend_with_friendshipId.id }}">
+                <span class="mx-auto">{{ friend_with_friendshipId.friend.username }}</span>
               <br>
+              </button>
               {% endfor %}
             </div>
           </div>
           {% endif %}
+          <div id="chat-window" style="display:none;">
+            <div id="messages"></div>
+            <input id="message-input" type="text">
+            <button id="send-button">Send</button>
+          </div>
         </div>
       </div>
     </div>
@@ -106,6 +115,40 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
       crossorigin="anonymous"></script>
+    <script>
+      $(document).ready(function () {
+          $(".open-chat-button").click(function () {
+            var friendshipId = $(this).data("friendship-id");
+            $("#chat-window").data("friendship-id", friendshipId).toggle(); // Toggle visibility of the chat window
+          });
+
+          $("#send-button").click(function () {
+              var messageContent = $("#message-input").val();
+              var friendshipId = $("#chat-window").data("friendship-id"); // Get stored friendship ID
+              if (messageContent.trim() !== "") {
+                  $.ajax({
+                      url: "{% url 'send_message' %}",
+                      type: "POST",
+                      data: {
+                          content: messageContent,
+                          friendship_id: friendshipId,
+                          csrfmiddlewaretoken: "{{ csrf_token }}",
+                      },
+                      success: function (response) {
+                          // Handle success
+                          $("#message-input").val("");
+                          // Append message to the messages div
+                          $("#messages").append("<div>" + response.content + "</div>");
+                      },
+                      error: function (xhr, errmsg, err) {
+                          console.log(xhr.status + ": " + xhr.responseText);
+                          alert("An error occurred. Please try again.");
+                      },
+                  });
+              }
+          });
+      });
+    </script>
   </body>
 </html>
 

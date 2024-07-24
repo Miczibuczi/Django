@@ -12,6 +12,7 @@ class UserWall(models.Model):
     def __str__(self):
         return f"{self.user.username}'s wall"
     
+
 class Fanpage(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="fanpage")
     fanpage_name = models.CharField(max_length=150, unique=True)
@@ -20,6 +21,7 @@ class Fanpage(models.Model):
     def __str__(self):
         return self.fanpage_name
     
+
 class Post(models.Model):
     wall = models.ForeignKey(UserWall, on_delete=models.CASCADE, related_name="posts", null=True, blank=True)
     fanpage = models.ForeignKey(Fanpage, on_delete=models.CASCADE, related_name="posts", null=True, blank=True)
@@ -40,7 +42,6 @@ class Post(models.Model):
                 img.thumbnail(output_size)
                 img.save(self.image.path)
 
-
     def __str__(self):
         if self.wall:
             return f"Post on {self.wall.user.username}'s wall"
@@ -49,6 +50,7 @@ class Post(models.Model):
         else:
             return f"Some error occured, the post doesn't belong to neither UserWall nor Fanpage"
         
+
 class LastVisited(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="last_visited")
     last_visited = models.JSONField(default=list, blank=True)
@@ -60,6 +62,7 @@ class LastVisited(models.Model):
         if len(self.last_visited) > 8:
             self.last_visited.pop()
         self.save()
+
 
 class Friendship(models.Model):
     PENDING = "pending"
@@ -111,3 +114,13 @@ class Friendship(models.Model):
         for invitation in friendships.order_by("-last_action"):
             received_invitations.append(invitation.sender)
         return received_invitations
+    
+
+class Message(models.Model):
+    friendship = models.ForeignKey(Friendship, related_name="messages", on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name="sent_messages", on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.sender.username} at {self.timestamp}"
