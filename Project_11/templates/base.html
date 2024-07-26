@@ -103,9 +103,11 @@
             </div>
           </div>
           {% endif %}
-          <div id="chat-window" style="display:none;">
-            <div id="messages"></div>
-            <input id="message-input" type="text">
+          <div id="chat-window" class="chat-window">
+            <div id="messages" class="friends-messages">
+              <!-- Messages will be appended here -->
+            </div>
+            <input id="message-input" class="message-input" type="text">
             <button id="send-button">Send</button>
           </div>
         </div>
@@ -120,6 +122,31 @@
           $(".open-chat-button").click(function () {
             var friendshipId = $(this).data("friendship-id");
             $("#chat-window").data("friendship-id", friendshipId).toggle(); // Toggle visibility of the chat window
+
+            // Clear previous messages
+            $("#messages").empty();
+
+
+            // Load messages for the selected friendship
+              $.ajax({
+                  url: "/get_messages/" + friendshipId + "/",
+                  type: "GET",
+                  success: function (response) {
+                      if (response.messages) {
+                          response.messages.forEach(function(message) {
+                              $("#messages").append("<div><strong>" + message.sender + ":</strong> " +
+                                message.content +
+                                "<br><small class='text-muted'>" + message.timestamp + "</small></div>");
+                          });
+
+                          $("#messages").scrollTop($("#messages")[0].scrollHeight);
+                      }
+                  },
+                  error: function (xhr, errmsg, err) {
+                      console.log(xhr.status + ": " + xhr.responseText);
+                      alert("An error occurred while loading messages. Please try again.");
+                  },
+              });
           });
 
           $("#send-button").click(function () {
@@ -138,7 +165,10 @@
                           // Handle success
                           $("#message-input").val("");
                           // Append message to the messages div
-                          $("#messages").append("<div>" + response.content + "</div>");
+                          $("#messages").append("<div><strong>" + response.sender + ":</strong> " +
+                                response.content +
+                                "<br><small class='text-muted'>" + response.timestamp + "</small></div>");
+                          $("#messages").scrollTop($("#messages")[0].scrollHeight);
                       },
                       error: function (xhr, errmsg, err) {
                           console.log(xhr.status + ": " + xhr.responseText);

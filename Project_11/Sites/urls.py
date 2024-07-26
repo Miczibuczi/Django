@@ -17,7 +17,8 @@ urlpatterns = [
     path("accept_friend/<str:username>/", views.Accept_friend_request, name="accept_invitation"),
     path("friends_details/", views.Friends_details, name="friends_details"),
     path("reject_friend/<str:username>/", views.Reject_friend_request, name="reject_invitation"),
-    path("delete_friendship/<str:username>", views.Delete_friendship, name="delete_friendship"),
-    path("cancel_invitation/<str:username>", views.Cancel_friend_request, name="cancel_invitation"),
+    path("delete_friendship/<str:username>/", views.Delete_friendship, name="delete_friendship"),
+    path("cancel_invitation/<str:username>/", views.Cancel_friend_request, name="cancel_invitation"),
     path("send_message/", views.Send_message, name="send_message"),
+    path("get_messages/<int:friendshipId>/", views.Get_messages, name="get_messages"),
 ]

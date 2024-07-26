@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.http import JsonResponse
 from django.db.models import Q
+from datetime import datetime
+import pytz
 
 # utility function
 def get_visited_with_counts(user):
@@ -63,9 +65,11 @@ def Login(request):
     form = LoginForm
     return render(request, "Sites/login.html", {"form":form})
 
+
 def Logout(request):
     logout(request)
     return redirect("login")
+
 
 def Fanpage_view(request, fanpage_name):
     user = request.user
@@ -81,6 +85,7 @@ def Fanpage_view(request, fanpage_name):
         return render(request, "Sites/fanpage.html", {"user":user, "posts":posts, "fanpage":fanpage, "last_visited":visited_with_counts, "friends18":friends18})
     else:
         return redirect("login")
+
 
 def UserWall_view(request, username):
     user = get_object_or_404(User, username=username)
@@ -99,6 +104,7 @@ def UserWall_view(request, username):
     else:
         return redirect("login")
 
+
 def Register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
@@ -114,6 +120,7 @@ def Register(request):
         form = RegisterForm()
     return render(request, "Sites/register.html", {"form":form})
 
+
 def Create_wall_post(request, username):
     user = get_object_or_404(User, username=username)
     friends18 = get_friend_with_friendshipId(request.user)[:18]
@@ -128,6 +135,7 @@ def Create_wall_post(request, username):
         form = PostForm()
         visited_with_counts = get_visited_with_counts(request.user)
     return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts, "friends18":friends18})
+
 
 def Create_fanpage_post(request, fanpage_name):
     user = request.user
@@ -148,6 +156,7 @@ def Create_fanpage_post(request, fanpage_name):
         visited_with_counts = get_visited_with_counts(request.user)
     return render(request, "Sites/post.html", {"form":form, "last_visited":visited_with_counts, "friends18":friends18})
 
+
 def Create_fanpage_view(request):
     if request.method == "POST":
         if request.user.is_authenticated:
@@ -165,12 +174,14 @@ def Create_fanpage_view(request):
         friends18 = get_friend_with_friendshipId(request.user)[:18]
     return render(request, "Sites/create_fanpage.html", {"form":form, "last_visited":visited_with_counts, "friends18":friends18})
 
+
 def User_details(request):
     user = get_object_or_404(User, username=request.user.username)
     fanpages = user.fanpage.all()
     visited_with_counts = get_visited_with_counts(request.user)
     friends18 = get_friend_with_friendshipId(request.user)[:18]
     return render(request, "Sites/user_details.html", {"user":user, "fanpages":fanpages, "last_visited":visited_with_counts, "friends18":friends18})
+
 
 def Search(request):
     query = request.GET.get("query")
@@ -185,6 +196,7 @@ def Search(request):
     else:
         return render(request, "Sites/search_results.html", {"fanpages":fanpages, "walls":walls, "query":query, "last_visited":visited_with_counts})
     
+
 def Send_friend_request(request, username):
     receiver = get_object_or_404(User, username=username)
     friendship, created = Friendship.objects.get_or_create(sender=request.user, receiver=receiver)
@@ -199,6 +211,7 @@ def Send_friend_request(request, username):
     else:
         messages.error(request, "Unknown error. Check the Send_friend_request view")
     return JsonResponse({"status":"error"})
+
 
 def Accept_friend_request(request, username):
     if request.method == "POST":
@@ -215,6 +228,7 @@ def Accept_friend_request(request, username):
     messages.error(request, "Some error occured. Check Accept_friend_request view")
     return JsonResponse({"status":"error"})
 
+
 def Reject_friend_request(request, username):
     sender = get_object_or_404(User, username=username)
     friendship = get_object_or_404(Friendship, sender=sender, receiver=request.user)
@@ -226,6 +240,7 @@ def Reject_friend_request(request, username):
         messages.info(request, f"Friend request from {sender.username} rejected")
         return JsonResponse({"status": "success"})
     
+
 def Cancel_friend_request(request, username):
     receiver = get_object_or_404(User, username=username)
     friendship = get_object_or_404(Friendship, sender=request.user, receiver=receiver)
@@ -236,6 +251,7 @@ def Cancel_friend_request(request, username):
         friendship.delete()
         messages.info(request, f"You've cancelled the invitation for {receiver.username}")
         return JsonResponse({"status": "success"})
+
 
 def Delete_friendship(request, username):
     if request.method == "POST":
@@ -250,6 +266,7 @@ def Delete_friendship(request, username):
     messages.error(request, "Some error occured. Check Delete_friendship view")
     return JsonResponse({"status": "error"})
 
+
 def Friends_details(request):
     friends = Friendship.get_friends(request.user)
     friends18 = get_friend_with_friendshipId(request.user)[:18]
@@ -257,6 +274,7 @@ def Friends_details(request):
     sent_invitations = Friendship.get_sent_invitations(request.user)
     received_invitations = Friendship.get_received_invitations(request.user)
     return render(request, "Sites/friends_details.html", {"friends18":friends18, "friends":friends, "last_visited":visited_with_counts, "sent_invitations":sent_invitations, "received_invitations":received_invitations})
+
 
 def Send_message(request):
     if request.method == "POST":
@@ -268,5 +286,32 @@ def Send_message(request):
             content=content
         )
         friendship.update_last_action()
-        return JsonResponse({"content": message.content, "timestamp": message.timestamp})
+        warsaw_tz = pytz.timezone("Europe/Warsaw")
+        timestamp = message.timestamp.astimezone(warsaw_tz)
+        response_date={
+            "sender":message.sender.username,
+            "content":message.content,
+            "timestamp":timestamp.strftime("%H:%M:%S")
+        }
+        return JsonResponse(response_date)
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+
+def Get_messages(request, friendshipId):
+    def format_date(date):
+        warsaw_tz = pytz.timezone("Europe/Warsaw")
+        date = date.astimezone(warsaw_tz)
+        if datetime.now().day == date.day:
+            formated_date = date.strftime("%H:%M:%S")
+        else:
+            formated_date = date.strftime("%Y-%m-%d %H:%M:%S")
+        return formated_date
+
+    friendship = get_object_or_404(Friendship, id=friendshipId)
+    if friendship.sender == request.user or friendship.receiver == request.user:
+        messages20 = Message.objects.filter(friendship=friendship).order_by("-timestamp")[:50][::-1]
+        messages_data = [{"content":message.content, "timestamp":format_date(message.timestamp), "sender":message.sender.username} for message in messages20]
+        return JsonResponse({"messages":messages_data})
+    else:
+        messages.error(request, "You can't access other people's conversations")
+        return JsonResponse({"error":"Unauthorized"}, status=403)
