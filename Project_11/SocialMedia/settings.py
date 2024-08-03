@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django_recaptcha",
 ]
 
 MIDDLEWARE = [
@@ -128,3 +129,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "Sites", "uploads")
 MEDIA_URL = "/media/"
+
+RECAPTCHA_PUBLIC_KEY = "6LcOwR4qAAAAAH3f9xogbvcydgALDuX4foBmDbmG"
+RECAPTCHA_PRIVATE_KEY = "6LcOwR4qAAAAADsseYGP1rXiGfDn_raXxpgGLWLF"

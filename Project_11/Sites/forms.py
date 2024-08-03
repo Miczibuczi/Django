@@ -2,6 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from .models import Post, Fanpage
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV3
 
 class LoginForm(forms.Form):
     username = forms.CharField(max_length=150)
@@ -13,6 +15,7 @@ class RegisterForm(forms.Form):
     password = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(widget=forms.PasswordInput)
     email = forms.EmailField()
+    captcha = ReCaptchaField(widget=ReCaptchaV3)
 
     def clean(self):
         cleaned_data = super().clean()
