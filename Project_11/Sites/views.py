@@ -12,17 +12,28 @@ import pytz
 
 # utility function
 def get_visited_with_counts(user):
+    def formated(views):
+        if views >= 10**7:
+            return str(views//10**6)+" M"
+        elif views >= 10**6:
+            return str(round(views/10**6, 1))+" M"
+        elif views >= 10**4:
+            return str(views//10**3)+" K"
+        elif views >= 10**3:
+            return str(round(views/10**3, 1)) + " K"
+        return views
+    
     last_visited, _ = LastVisited.objects.get_or_create(user=user)
     visited_with_counts = []
     for url in last_visited.last_visited:
         if url.startswith("wall/"):
             username = url.split("/")[1]
             wall = get_object_or_404(UserWall, user__username=username)
-            visited_with_counts.append({"url":url, "views":wall.views})
+            visited_with_counts.append({"url":url, "views":formated(wall.views)})
         elif url.startswith("fanpage/"):
             fanpage_name = url.split("/")[1]
             fanpage = get_object_or_404(Fanpage, fanpage_name=fanpage_name)
-            visited_with_counts.append({"url":url, "views":fanpage.views})
+            visited_with_counts.append({"url":url, "views":formated(fanpage.views)})
     return visited_with_counts
 
 
